@@ -12,5 +12,11 @@ etc that you referred to or used in this submission
 #Welch's t-test
 #http://en.wikipedia.org/wiki/Welch%27s_t_test
 
+#Slicing by column in pandas
+#http://stackoverflow.com/questions/10665889/how-to-slice-by-columns-in-pandas
+
+#Feature Selection
+#http://scikit-learn.org/stable/modules/feature_selection.html
+
 #Multiple linear regression
 #http://cogmaster-stats.github.io/python-cogstats/basic_statistics.html
