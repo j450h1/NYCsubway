@@ -15,6 +15,8 @@ import os
 from ggplot import *
 
 df = pandas.read_csv("turnstile_weather_v2.csv")
+df = df.reset_index(drop=True)
+df.index = range(df.shape[0])
 
 df.head()
 
@@ -24,6 +26,8 @@ os.system('notepad') #open application
 
 dir(df)
 df.describe()
+
+df['rain'].describe()
 len(df.index) #rows
 ''' Section 1. Statistical Test
 
@@ -53,19 +57,21 @@ p-value = 4.64 e-07 is less than alpha = 0.05 (5% significance level), which mea
 raindf = df[df.rain != 0]
 raindf = raindf.reset_index(drop=True) #needed for ggplot to plot graph
 len(raindf.index) #rows
+percentrain = float(len(raindf.index))/float(len(df)) 
+percentrain
 #subset of not_raining
 noraindf = df[df.rain == 0]
 noraindf = noraindf.reset_index(drop=True) #needed for ggplot to plot graph
 len(noraindf.index) #rows
+percentnorain = float(len(noraindf.index))/float(len(df)) 
+percentnorain
 #compare the means of ridership the two subsets - see if there is a significant difference
-
 len(df.index)==len(raindf.index)+len(noraindf.index) #check that it got subsetted properly, no NAs
 
 #Lets find the ridership variable.
 names = list(df.columns.values); names[6]
 
 #Find the average ENTRIESn_hourly - is this actually hourly or do you have to divide by the hours?
-
 raindf.ENTRIESn_hourly.mean(); noraindf.ENTRIESn_hourly.mean()
 raindf.ENTRIESn_hourly.describe(); noraindf.ENTRIESn_hourly.describe()
 #different sds therefore different varianaces therefore Welch T-test
@@ -146,7 +152,6 @@ y = ENTRIESn_hourly
 Find out what dependent variables to pick in the model (x).
 Get summary statistics.
 '''
-
 #Let's see the correlation between variables.
 
 #We cannot use EXITSn_hourly as a predictor
@@ -156,11 +161,14 @@ Get summary statistics.
 stationDUMMY = pandas.get_dummies(df['station'],prefix='station')
 UNITDUMMY = pandas.get_dummies(df['UNIT'],prefix='unit')
 
-
 y = df['ENTRIESn_hourly']
 #x will be chosen features/regressors
 x = df.copy()
+df = df.join(stationDUMMY)
+df = df.join(UNITDUMMY)
+
 #new
+
 #x = df.ix[:,'b':] - if doing a range of columns
 #possible features
 #Do we need to subset into a new df? Yes, easier to read and understand
@@ -225,13 +233,65 @@ predictions = results.predict(x)
 #residuals
 plt.figure()
 (y - predictions).hist()
-
-
-
 dir(results)
+'''
+Section 3. Visualization
+Please include two visualizations that show the relationships between two or 
+more variables in the NYC subway data. You should feel free to implement something
+that we discussed in class (e.g., scatter plots, line plots, or histograms) or 
+attempt to implement something more advanced if you'd like.
+Remember to add appropriate titles and axes labels to your
+plots. Also, please add a short description below each figure commenting on the 
+key insights depicted in the figure. 
+1.	One visualization should contain two histograms: one of  ENTRIESn_hourly for
+rainy days and one of ENTRIESn_hourly for non-rainy days. You can combine the two
+histograms in a single plot or you can use two different plots.
+For the histogram, you should have intervals representing the volume of ridership
+(value of ENTRIESn_hourly) on the x-axis and the frequency of occurrence on the y-axis. For example, you might have one interval (along the x-axis) with values from 0 to 1000. The height of the bar for this interval will then represent the number of records (rows in our data) that have ENTRIESn_hourly that fall into this interval.
+Remember to increase the number of bins in the histogram (by having larger number of bars). The default bin width is not sufficient to capture the variability in the two samples.
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+2.	One visualization can be more freeform, some suggestions are:
+1.	Ridership by time-of-day or day-of-week
+2.	How ridership varies by subway station
+3.	Which stations have more exits or entries at different times of day
+'''
+ggrain = ggplot(aes(x='ENTRIESn_hourly'), data=raindf) + \
+    geom_histogram() + \
+    ggtitle("Histogram of Hourly Entries (Rain)") + \
+    labs("HOURLY Entries (Rain)", "Frequency")    
+ggrain
+ggnorain = ggplot(aes(x='ENTRIESn_hourly'), data=noraindf) + \
+    geom_histogram() + \
+    ggtitle("Histogram of Hourly Entries (No Rain)") + \
+    labs("HOURLY Entries (No Rain)", "Frequency")    
+ggnorain
+#We need to plot on the same chart
 
-dir(z)
-z.shape
-z[:5]
-x[:5]
-# The location data doesn't 
+df = df[['ENTRIESn_hourly','rain']]
+df = df.reset_index(drop=True)
+df.index = range(df.shape[0])
+histogram = ggplot(aes(x='ENTRIESn_hourly'), data=df) + \
+    geom_histogram(data = df[df['rain'] == 0], fill = "yellow", binwidth = 300) + \
+    geom_histogram(data = df[df['rain'] != 0], fill = "blue", binwidth = 300) + \
+    xlim(low=0, high=7000) + \    
+    ggtitle("Histogram of Hourly Entries to the NYC Subway") + \
+    labs("HOURLY Entries (Yellow - No Rain, Blue - Rain)", "Frequency")    
+#From the histogram, it appears the shape of the distribution for rain any non-rainy days
+is near identical. The differences in height can be attributed to the fact that the majority of the data
+(over 3/4) was collected on non-rainy days. If we had an equal amount of data from rainy days and non-rainy days 
+then the height difference would matter more. From the chart, it doesn't appear there is any major difference, but these
+are total counts and doesn't show the entire picture.
+
+second visualization done in tableau
+
+3. From three different methods, we are able to confirm that ridership of the NYC Subway
+is indeed higher on non-rainy days vs rainy days. Average ridership is a better measurement to determine 
+if rain vs no-rain makes a difference.:
+    
+    Although the average difference is statistically significant, for all practical purposes
+    there is no observable difference in ridership on non-rainy vs rainy days. This also makes sense
+    intuitively as most of the time people take the subway to save commuting time and money. It wouldn't make
+    much sense to take a cab or walk just because it is a sunny day. Most people would not change their commuting
+    habits due to the weather(except snow or extreme weather for example). It would be interesting to see what kind of
+    data is available in winter months. Also many people don't even check the weather forecast before leaving or
+    planning their commute so they have already planned that they will be taking the subway.

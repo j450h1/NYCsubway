@@ -12,11 +12,9 @@ etc that you referred to or used in this submission
 #Welch's t-test
 #http://en.wikipedia.org/wiki/Welch%27s_t_test
 
-#Slicing by column in pandas
-#http://stackoverflow.com/questions/10665889/how-to-slice-by-columns-in-pandas
+#r2, a measure of goodness-of-fit of linear regression
+#http://www.graphpad.com/guides/prism/6/curve-fitting/index.htm?r2_ameasureofgoodness_of_fitoflinearregression.htm
 
-#Feature Selection
-#http://scikit-learn.org/stable/modules/feature_selection.html
-
-#Multiple linear regression
-#http://cogmaster-stats.github.io/python-cogstats/basic_statistics.html
+#Piazza post
+#Plotting two separate histograms with ggplot
+#https://piazza.com/class/i23uptiifb6194?cid=109
