@@ -105,7 +105,6 @@ prediction for ENTRIESn_hourly in your regression model:
     3.	Or something different?
 -----------------------------------------------------------------------------------    
 I used the OLS (Ordinary Least Squares) - Multiple Linear Regression using Statsmodels.
-I used stepwise regression to remove features. Features with high p-value rejected?
 
 2.	What features (input variables) did you use in your model? Did you use 
 any dummy variables as part of your features?
