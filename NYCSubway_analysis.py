@@ -19,7 +19,9 @@ df = df.reset_index(drop=True)
 df.index = range(df.shape[0])
 
 df.head()
-
+path = "C:\Users\user\Documents\Python Scripts"
+os.chdir( path )
+dir(os)
 os.getcwd()
 os.listdir(".") #list files
 os.system('notepad') #open application
@@ -32,16 +34,21 @@ len(df.index) #rows
 ''' Section 1. Statistical Test
 
 1.	Which statistical test did you use to analyse the NYC subway data? Did you use a one-tail or a two-tail P value?
-
-The 2 sided - Welch T-test as we are comparing the means of two groups. Ridership on rainy days and ridership on non-rainy days. I used a two-tail P value as the question we are
-answering is looking for any significant difference whether positive or negative (ridership could be significantly higher or significantly lower on rainy days compared to non-rainy days) even though common intuition might says rainy days should have higher ridership (as people don't like walking in the rain).
+--------------------------------------------------------------------------------------------------------------------------
+The Mann-Whitney U-Test was used to compare the means of the two groups we were looking at: rainy days and non-rainy days.
+ A two-tail test was used, as the question being addressed is looking for any significant difference whether positive or 
+ negative (ridership could be significantly higher or significantly lower on rainy days compared to non-rainy days).
 
 2.	Why is this statistical test applicable to the dataset?
-
-The variances of two distributions is unequal (they have unequal stds therefore unequal variances as well since variance = std^2). This test is used to check if two populations have equal means (exactly what we are trying to find in our question).  
+------------------------------------------------------------
+This particular test was used because the variances of two distributions are unequal (they have unequal standard deviations 
+therefore unequal variances as well since standard deviation is just the square root of variance). The Mann-Whitney test is 
+also appropriate in this case because the underlying distributions are not normally distributed (both the rainy and non-rainy 
+distributions have a long tailed versus a bell curved shape) and it relaxes this assumption of normality as compared with other 
+statistical tests such as Welch’s t-test.
 
 3.	What results did you get from this statistical test? These should include the following numerical values: p-values, as well as the means for each of the two samples under test.
-
+-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
 rain group mean = 2028
 norain group mean = 1845
 difference between group means = 182
@@ -83,8 +90,29 @@ difference = raindf.ENTRIESn_hourly.mean() - noraindf.ENTRIESn_hourly.mean(); di
 #Two-tailed test
 
 #Comparing 2 means 
-#2 sided - Welch T-test - unequal variances 
+#2 sided - Mann-Whitney U Test - unequal variances and not normal distribution 
 
+with_rain_mean = raindf['ENTRIESn_hourly'].mean() 
+without_rain_mean = noraindf['ENTRIESn_hourly'].mean() 
+mwhittuple = scipy.stats.mannwhitneyu(raindf['ENTRIESn_hourly'],noraindf['ENTRIESn_hourly'])
+U = mwhittuple[0] 
+p = mwhittuple[1]
+    
+print with_rain_mean, without_rain_mean, U, p #
+#got nan for p-value, other people have similar issues in piazza
+#got this code for normal approximation from piazza post
+entries_rain=df['ENTRIESn_hourly'][df['rain']==1]
+entries_norain=df['ENTRIESn_hourly'][df['rain']==0]
+with_rain_mean=np.mean(entries_rain)
+without_rain_mean=np.mean(entries_norain)
+U,p =scipy.stats.mannwhitneyu(entries_rain,entries_norain)
+m_u=len(entries_rain)*len(entries_norain)/2
+sigma_u = np.sqrt(len(entries_rain)*len(entries_norain)*(len(entries_rain)+len(entries_norain)+1)/12)
+z=(U-m_u)/sigma_u
+p=2*scipy.stats.norm.cdf(z)      
+
+print with_rain_mean, without_rain_mean, U, p
+    
 tupttest = scipy.stats.ttest_ind(raindf.ENTRIESn_hourly,noraindf.ENTRIESn_hourly,equal_var = False)
 tupttest
 if tupttest[1] < 0.05: #95% significance level
@@ -217,11 +245,22 @@ numpy.corrcoef(y,df['weather_lon']) #-0.137
 import math 
 math.sqrt(0.63)
 
+y = df['ENTRIESn_hourly']
+x = pandas.get_dummies(df['UNIT'],prefix='unit')
+x = pandas.DataFrame(x)
+x = x.join(df[['hour']])
+x.head()
+
 import statsmodels.api as sm
 model = sm.OLS(y,x)
 results = model.fit()
-results.rsquared #0.63
+results.rsquared 
+#rsquared = 0.55636 with units as dummies only
+#0.61574
 
+dir(results)
+
+results.summary()
 
 results.params
 results.tvalues
@@ -232,7 +271,17 @@ predictions = results.predict(x)
 #residuals
 plt.figure()
 (y - predictions).hist()
+
+(y - predictions).mean()
 dir(results)
+plt.figure()
+
+import matplotlib.pyplot as plt
+
+plt.plot(x['hour'], y)
+
+
+
 '''
 Section 3. Visualization
 Please include two visualizations that show the relationships between two or 

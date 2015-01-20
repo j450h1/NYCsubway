@@ -9,6 +9,13 @@ Created on Wed Dec 17 10:43:40 2014
 etc that you referred to or used in this submission 
 (Add N/A if you did not use such resources).
 '''
+#Piazza post
+#Problems with Mann-Whitney U test - no p-values returned by improved dataset
+#https://piazza.com/class/i23uptiifb6194?cid=517
+
+##Mann Whitney U test
+#http://en.wikipedia.org/wiki/Mann%E2%80%93Whitney_U_test
+
 #Welch's t-test
 #http://en.wikipedia.org/wiki/Welch%27s_t_test
 
